@@ -1,0 +1,81 @@
+
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(CUSTOMER)
+  orders    Order[]
+  createdAt DateTime  @default(now())
+}
+
+model Category {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  slug   String  @unique
+  books  Book[]
+}
+
+model Book {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  author      String
+  description String
+  price       Float
+  stock       Int         @default(0)
+  imageUrl    String
+  isbn        String?     @unique
+  published   Boolean     @default(false)
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  total           Float
+  status          OrderStatus @default(PENDING)
+  stripePaymentId String?     @unique
+  address         String
+  createdAt       DateTime    @default(now())
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  bookId    String
+  book      Book    @relation(fields: [bookId], references: [id])
+  quantity  Int
+  price     Float   
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
