@@ -1,2 +1,32 @@
 @import "tailwindcss";
-@import "@heroui/styles"
+@import "@heroui/styles";
+
+
+
+body {
+  background-color: #141210;
+}
+
+
+@import "tailwindcss";
+
+@theme {
+  --color-veloura-bg: #f6f2eb;
+  --color-veloura-surface: #fbf8f3;
+  --color-veloura-surface-2: #f1ebe3;
+  --color-veloura-surface-offset: #e9dfd2;
+  --color-veloura-border: #d8ccbe;
+
+  --color-veloura-text: #201c18;
+  --color-veloura-text-muted: #6c655d;
+  --color-veloura-text-faint: #a4998e;
+
+  --color-veloura-primary: #6e3b30;
+  --color-veloura-primary-hover: #522a21;
+  --color-veloura-secondary: #1c4638;
+  --color-veloura-accent: #c6a16a;
+  --color-veloura-inverse: #f9f6f1;
+
+  --font-display: "Boska", Georgia, serif;
+  --font-body: "Satoshi", Inter, sans-serif;
+}

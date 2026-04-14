@@ -1,15 +1,18 @@
 
-import { Button } from "@heroui/react"
+import {Routes, Route} from 'react-router-dom'
+import { MainLayout } from './layout/layoutMain'
+import { Home } from './pages/Home'
 
 function App() {
-  
 
   return (
-    <div>
-
-      <Button variant="danger" >presiona aqui nigga</Button>
-
-    </div>
+    <Routes>
+      <Route path='/' element={<MainLayout/>}>
+      <Route index element={<Home/>}/>
+      
+      </Route>
+    </Routes>
+   
   )
     
 }
