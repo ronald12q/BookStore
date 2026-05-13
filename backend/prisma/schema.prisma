@@ -1,14 +1,14 @@
 
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  
+  
 }
-
 
 
 model User {
@@ -19,6 +19,30 @@ model User {
   role      Role      @default(CUSTOMER)
   orders    Order[]
   createdAt DateTime  @default(now())
+  cart      Cart?
+}
+
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique 
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  
+  bookId    String   
+  book      Book     @relation(fields: [bookId], references: [id])
+  
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
 }
 
 model Category {
@@ -31,6 +55,7 @@ model Category {
 model Book {
   id          String      @id @default(cuid())
   title       String
+  cartItem    CartItem[]
   slug        String      @unique
   author      String
   description String

@@ -69,7 +69,7 @@ export const getBookBySlug = async (
 
 export const createBook = async (req: Request, res: Response) => {
     try {
-        const {title, slug, author, description, price, stock, imageUrl, isbn, categoryId} = req.body;
+        const {title, slug, author, description, price, stock, isbn, categoryId} = req.body;
         
         const existBook = await prisma.book.findUnique({where: {slug: slug}});
         if(existBook){
@@ -100,7 +100,7 @@ export const createBook = async (req: Request, res: Response) => {
 
     const cloudResult = await uploadFromBuffer(req.file.buffer);
         
-      const newBook = await prisma.book.create({data:{title, slug, author, description, price, stock: stock || 0,imageUrl: cloudResult.secure_url, isbn,categoryId , published: true}})
+      const newBook = await prisma.book.create({data:{title, slug, author, description, price: Number(price), stock: Number(stock) || 0,imageUrl: cloudResult.secure_url, isbn: isbn || undefined,categoryId , published: true}})
 
         return res.status(201).json({
             message: 'the created of the book was succesfull', book: newBook
@@ -137,16 +137,16 @@ export const deleteBook = async(req: Request, res: Response) => {
 
 export const updateBook = async (req: Request, res: Response) => {
  try {
-  const {rawId} = req.params;
-  const update = req.body;
-
-
-  const id =
-  typeof rawId === 'string'
-    ? rawId
-    : Array.isArray(rawId)
-      ? rawId[0]
-      : undefined;
+  // La ruta es '/:id'; rawId nunca existia en req.params.
+  const {id: rawId} = req.params;
+  // Express puede tipar params como string[]; Prisma necesita un id string limpio.
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+  const update = {
+    ...req.body,
+    ...(req.body.price !== undefined ? { price: Number(req.body.price) } : {}),
+    ...(req.body.stock !== undefined ? { stock: Number(req.body.stock) } : {}),
+    ...(req.body.isbn === '' ? { isbn: null } : {}),
+  };
 
 
 
@@ -156,7 +156,8 @@ export const updateBook = async (req: Request, res: Response) => {
    return res.status(401).json({message: "book not found"});
   }
 
-  return res.status(200).json({message: "book was succesfull updated", book: updateBook});
+  // Hay que devolver el libro actualizado, no la funcion controller.
+  return res.status(200).json({message: "book was succesfull updated", book: updatedBook});
 
   
  } catch (error) {
@@ -167,5 +168,3 @@ export const updateBook = async (req: Request, res: Response) => {
 
 
 }
-
-

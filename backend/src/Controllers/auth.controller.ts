@@ -32,7 +32,7 @@ export const createUser = async (req : Request, res: Response) => {
         } 
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const createUser = await prisma.user.create({data: {name: name, email: normalizedEmail, password: hashedPassword},})
+        const createUser = await prisma.user.create({data: {name: name, email: normalizedEmail, password: hashedPassword, cart: {create: {}}}})
         const token = generateToken(createUser.id);
         return res.status(201).json({token, user:{name: createUser.name, email: createUser.email, role:createUser.role}});
 
@@ -81,21 +81,3 @@ export const loginUser = async(req: Request, res: Response) => {
         return res.status(500).json({message: 'something was wrong during the action', error: (error as Error).message});
     }
 }
-
-
-
-
-export const getMe = async (req: Request, res: Response) => {
-  
-  try {
-    res.status(200).json({
-      success: true,
-      user: req.user
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener los datos del usuario' });
-  }
-};
-
-
-

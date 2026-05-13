@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction  } from "express";
 import jwt from 'jsonwebtoken';
 import { prisma } from "../lib/prisma";
-import { isErrored } from "node:stream";
 
 
 
@@ -21,7 +20,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     try {
         let token;
         if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-            token = req.headers.authorization.split('')[1];
+            // El header llega como "Bearer TOKEN"; split('') separaba por letras y rompia el JWT.
+            token = req.headers.authorization.split(' ')[1];
         }
 
         if(!token){

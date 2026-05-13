@@ -5,6 +5,7 @@ import {Authroutes} from './Routes/auth.routes';
 import {Bookroutes} from './Routes/book.routes';
 import {Categoryroutes} from './Routes/category.routes';
 import { Orderroutes } from "./Routes/order.routes";
+import { Cartroutes } from "./Routes/cart.routes";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', Authroutes);
 app.use('/api/Book', Bookroutes);
 app.use('/api/Category', Categoryroutes);
 app.use('/api/Order', Orderroutes);
+app.use('/api/Cart', Cartroutes)
 
 app.listen(port, () => {
 	console.log(`Server listening on http://localhost:${port}`);

@@ -100,17 +100,11 @@ export const getAllOrders = async (req: Request, res: Response) => {
 
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const { idParam } = req.params;
+    // La ruta es '/:id'; idParam nunca existia en req.params.
+    const { id: rawId } = req.params;
+    // Express puede tipar params como string[]; Prisma necesita un id string limpio.
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
     const { status } = req.body;
-
-    
-  const id =
-  typeof idParam === 'string'
-    ? idParam
-    : Array.isArray(idParam)
-      ? idParam[0]
-      : undefined;
-
 
     const validStatuses = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {
