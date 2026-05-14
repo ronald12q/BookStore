@@ -2,12 +2,14 @@ import { useState } from "react";
 import { authStore } from "../store/authStore";
 import type { loginInterface } from "../utilities/authInterface";
 import type { authInterface } from "../utilities/authInterface";
+import { useNotificationStore } from "../store/notificationStore";
 
 export const LoginHook = () => {
    
     const [loadingLogin, setLoadingLogin] = useState<boolean>(false);
     const [errorLogin, setErrorLogin] = useState<string | null>(null);
     const { setUser } = authStore();
+    const pushNotification = useNotificationStore((state) => state.push);
 
     const requestLoginApi = async ({ email,password }: loginInterface): Promise<null| authInterface > => {
         try {
@@ -27,6 +29,11 @@ export const LoginHook = () => {
             
             const data = await request.json();
             setUser(data);
+            pushNotification({
+                title: 'Welcome back',
+                description: 'You have logged in successfully.',
+                status: 'success'
+            });
             console.log('login exitoso');
             return data;
             
@@ -39,9 +46,19 @@ export const LoginHook = () => {
             if (error instanceof Error) {
                 console.error(error);
                 setErrorLogin(error.message);
+                pushNotification({
+                    title: 'Login failed',
+                    description: error.message,
+                    status: 'danger'
+                });
             } else {
                 console.log('Unknown error during the request', error);
                 setErrorLogin('Unknown error during the request');
+                pushNotification({
+                    title: 'Login failed',
+                    description: 'Unknown error during the request',
+                    status: 'danger'
+                });
             }
 
             return null;

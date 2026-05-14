@@ -1,5 +1,5 @@
 
-// Prisma devuelve los enums en mayuscula: ADMIN/CUSTOMER, no Admin/Customer.
+
 type role =  'ADMIN' | 'CUSTOMER'; 
 
 

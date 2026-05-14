@@ -1,8 +1,5 @@
 import {prisma} from '../lib/prisma'
 import { Request, Response } from 'express'
-import { PrismaClient } from '@prisma/client'
-import { includes } from 'zod'
-
 
 
 
@@ -37,7 +34,7 @@ export const getCartItem =  async (req: Request, res: Response) => {
 
 export const addItem = async (req: Request, res: Response) => {
     const {Bookid} = req.body;
-    const {UserId} = req.user.id;
+    const UserId = req.user.id;
 
     const cart  = await prisma.cart.findUnique({where:{userId: UserId}})
      
@@ -77,7 +74,7 @@ const newItem = await prisma.cartItem.create({
 
 export const removeItem = async(req: Request, res: Response) => {
     const {Bookid} = req.body
-    const {UserId} = req.user.id
+    const UserId = req.user.id
 
     const cart = await prisma.cart.findFirst({where: {userId: UserId}})
 

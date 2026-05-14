@@ -1,18 +1,20 @@
 import { authStore } from "../store/authStore";
+import { CartStore } from "../store/cartStore";
+import { DeleteCartItem } from "../hooks/deleteCartItemHook";
 
 interface SideBarProps {
   isOpen : boolean,
   setOpen: (isOPen : boolean) => void 
 }
 
-
-
-
 export const SidebarComponent = ({isOpen, setOpen}: SideBarProps) => {
   const User = authStore((state) => state.User);
+  const { cartItems } = CartStore();
+  const { requestDeleteCartItem } = DeleteCartItem();
+
+  const total = cartItems?.reduce((sum, item) => sum + item.book.price * item.quantity, 0) ?? 0;
 
   if (!isOpen) return null;
-  
 
   return (
     <aside className="fixed right-0 top-0 z-50 h-screen w-full max-w-[35vw] border-l border-[#3b332d] bg-[#141210] px-4 py-4 text-veloura-surface-2 shadow-2xl sm:px-6 sm:py-6">
@@ -46,56 +48,49 @@ export const SidebarComponent = ({isOpen, setOpen}: SideBarProps) => {
             </div>
 
             <div className="flex-1 overflow-y-auto pr-1">
-              <div className="space-y-4">
-                <div className="flex gap-4 rounded-2xl border border-[#3b332d] bg-[#1b1714] p-3 shadow-sm">
-                  <div className="h-24 w-16 shrink-0 rounded-xl bg-white/10" />
-                  <div className="flex min-w-0 flex-1 flex-col justify-between">
-                    <div>
-                      <p className="truncate text-sm font-semibold text-veloura-surface-2">Book title</p>
-                      <p className="mt-1 text-xs text-veloura-inverse/55">Author name</p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-veloura-accent">$00.00</span>
-                      <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-veloura-inverse/50">Qty 1</span>
-                    </div>
-                  </div>
+              {!cartItems || cartItems.length === 0 ? (
+                <div className="flex h-full items-center justify-center">
+                  <p className="text-sm text-veloura-inverse/50">Your cart is empty</p>
                 </div>
-
-                <div className="flex gap-4 rounded-2xl border border-[#3b332d] bg-[#1b1714] p-3 shadow-sm">
-                  <div className="h-24 w-16 shrink-0 rounded-xl bg-white/10" />
-                  <div className="flex min-w-0 flex-1 flex-col justify-between">
-                    <div>
-                      <p className="truncate text-sm font-semibold text-veloura-surface-2">Book title</p>
-                      <p className="mt-1 text-xs text-veloura-inverse/55">Author name</p>
+              ) : (
+                <div className="space-y-4">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="flex gap-4 rounded-2xl border border-[#3b332d] bg-[#1b1714] p-3 shadow-sm">
+                      <div className="h-24 w-16 shrink-0 rounded-xl overflow-hidden bg-white/10">
+                        {item.book.imageUrl && (
+                          <img src={item.book.imageUrl} alt={item.book.title} className="h-full w-full object-cover" />
+                        )}
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col justify-between">
+                        <div className="flex justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-veloura-surface-2">{item.book.title}</p>
+                            <p className="mt-1 text-xs text-veloura-inverse/55">{item.book.author}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => requestDeleteCartItem(item.bookId)}
+                            className="shrink-0 text-xs text-red-400 hover:text-red-300 transition"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-veloura-accent">${item.book.price.toFixed(2)}</span>
+                          <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-veloura-inverse/50">Qty {item.quantity}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-veloura-accent">$00.00</span>
-                      <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-veloura-inverse/50">Qty 1</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-
-                <div className="flex gap-4 rounded-2xl border border-[#3b332d] bg-[#1b1714] p-3 shadow-sm">
-                  <div className="h-24 w-16 shrink-0 rounded-xl bg-white/10" />
-                  <div className="flex min-w-0 flex-1 flex-col justify-between">
-                    <div>
-                      <p className="truncate text-sm font-semibold text-veloura-surface-2">Book title</p>
-                      <p className="mt-1 text-xs text-veloura-inverse/55">Author name</p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-veloura-accent">$00.00</span>
-                      <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-veloura-inverse/50">Qty 1</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="mt-6 space-y-4 border-t border-white/10 pt-5">
               <div className="rounded-2xl border border-[#3b332d] bg-[#1b1714] p-4">
                 <div className="flex items-center justify-between text-sm text-veloura-inverse/65">
                   <span>Subtotal</span>
-                  <span>$00.00</span>
+                  <span>${total.toFixed(2)}</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-sm text-veloura-inverse/65">
                   <span>Shipping</span>
@@ -103,7 +98,7 @@ export const SidebarComponent = ({isOpen, setOpen}: SideBarProps) => {
                 </div>
                 <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
                   <span className="text-sm font-medium text-veloura-surface-2">Total</span>
-                  <span className="text-xl font-semibold text-veloura-accent">$00.00</span>
+                  <span className="text-xl font-semibold text-veloura-accent">${total.toFixed(2)}</span>
                 </div>
               </div>
 

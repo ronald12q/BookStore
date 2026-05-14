@@ -142,7 +142,7 @@ export const AdminDashboard = () => {
 
   const handleAdminLogOut = () => {
     logOut();
-    navigate("");
+    navigate("/");
   };
 
   const handleBookInput = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

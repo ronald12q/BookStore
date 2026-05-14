@@ -1,26 +1,20 @@
 import {create} from 'zustand'
-import type { Book } from '../utilities/bookInterface'
-import { persist } from 'zustand/middleware'
+import type { CartItem } from '../utilities/bookInterface'
 
-
- interface CartStoreInterface {
-
-    cartItems : Book[] | null,
-    setItems : (Items: Book) => void,
-    clearCart: () => void
+interface CartStoreInterface {
+    cartItems : CartItem[] | null,
+    setItems : (Items: CartItem[]) => void,
+    clearCart: () => void,
+    refetchTrigger: number,
+    triggerRefetch: () => void
 }
 
 export const CartStore = create<CartStoreInterface>()(
-
-    persist(
-        (set) => ({
-            cartItems: null,
-
-            setItems : (item: Book) => set((state) => ({cartItems: [...(state.cartItems ?? []), item],})),
-
-            clearCart: () => set({cartItems: null})
-        }),
-
-        {name: 'cart-save', partialize: (state) => ({cartItems: state.cartItems})}
-    )
+    (set) => ({
+        cartItems: null,
+        setItems : (items: CartItem[]) => set({cartItems: items}),
+        clearCart: () => set({cartItems: null}),
+        refetchTrigger: 0,
+        triggerRefetch: () => set((state) => ({refetchTrigger: state.refetchTrigger + 1}))
+    })
 )

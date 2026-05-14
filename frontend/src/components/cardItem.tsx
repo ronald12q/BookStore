@@ -1,7 +1,7 @@
 
 import type { Book } from "../utilities/bookInterface"
 import { ButtonPrimary } from "./ui/bottonFirt"
-import { CartStore } from "../store/cartStore"
+import { CreateCartItem } from "../hooks/createCartItemHook"
 import { Link } from "react-router-dom"
 
 
@@ -14,7 +14,7 @@ interface CardItemInterface {
 
 
 export const CardItem = ({Item}: CardItemInterface) => {
-    const {setItems} = CartStore();
+    const { requestCreateCartItem } = CreateCartItem();
 
     return (
         <div className="group mx-auto flex h-full w-[82%] max-w-[22rem] flex-col overflow-hidden rounded-2xl border-2 border-[#3b332d] bg-[#141210] shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#5a4e44] hover:shadow-xl">
@@ -35,7 +35,7 @@ export const CardItem = ({Item}: CardItemInterface) => {
                     </p>
                 </div>
                 <div className="mt-auto flex gap-3 pt-2">
-                    <ButtonPrimary classname="flex-1 rounded-full bg-veloura-accent text-veloura-primary-hover shadow-sm transition-transform duration-200 hover:scale-[0.98]" onClick={() => setItems(Item)} type="button" label="Add to cart"></ButtonPrimary>
+                    <ButtonPrimary classname="flex-1 rounded-full bg-veloura-accent text-veloura-primary-hover shadow-sm transition-transform duration-200 hover:scale-[0.98]" onClick={() => requestCreateCartItem(Item.id)} type="button" label="Add to cart"></ButtonPrimary>
                     <Link
                         to={`/book/${Item.slug}`}
                         className="inline-flex flex-1 items-center justify-center rounded-full bg-veloura-primary-hover px-4 py-3 text-sm font-semibold text-veloura-surface-2 shadow-sm transition-transform duration-200 hover:scale-[0.98] hover:opacity-95"

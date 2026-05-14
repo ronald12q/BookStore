@@ -13,17 +13,34 @@ export interface Book {
   price: number;
   stock: number;
   imageUrl: string;
-  isbn?: string; // Es opcional (?) porque en tu Prisma le pusiste "String?"
+  isbn?: string; 
   published: boolean;
   categoryId: string;
   
-  // Estas propiedades dependen de si en el backend hiciste el "include"
+
   category?: Category; 
   
-  // Ojo aquí: Aunque en Prisma es un DateTime, cuando viaja 
-  // por internet (JSON) llega al frontend como un texto (String ISO)
+
   createdAt: string; 
 }
 
+
+export interface CartItem {
+  id: string;
+  cartId: string;
+  bookId: string;
+  quantity: number;
+  book: Book; 
+  createdAt?: string;
+}
+
+
+export interface Cart {
+  id: string;
+  userId: string;
+  items: CartItem[]; 
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 

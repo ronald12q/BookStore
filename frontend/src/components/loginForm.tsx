@@ -4,12 +4,10 @@ import type { AuthFormInterface } from "../utilities/authInterface";
 import type { loginInterface } from "../utilities/authInterface";
 import { LoginHook } from "../hooks/loginAuthHook";
 import { ButtonPrimary } from "./ui/bottonFirt";
-import { AlertError } from "./ui/alertError";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 export const LoginForm = ({ setModeAuth, onSuccess }: AuthFormInterface) => {
-  const [alertErrorState, setAlertErrorState] = useState<boolean>(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState< boolean> (false);
   const [errorFrontend, setErrorFrontend] = useState<string | null>(null);
@@ -41,7 +39,6 @@ export const LoginForm = ({ setModeAuth, onSuccess }: AuthFormInterface) => {
 
     const authData = await requestLoginApi(loginData);
     if (!authData) {
-      setAlertErrorState(true);
       return 
     }
     setLoginData({ email: '', password: '' });
@@ -58,21 +55,21 @@ export const LoginForm = ({ setModeAuth, onSuccess }: AuthFormInterface) => {
   }
 
   return (
-    <div className="relative isolate flex w-[min(92vw,30rem)] flex-col items-center overflow-hidden rounded-[2rem] border border-veloura-accent/25 bg-linear-to-br from-[#120c0a]/85 via-[#24130f]/75 to-[#090605]/90 px-8 py-10 shadow-2xl shadow-black/70 backdrop-blur-3xl sm:px-14 sm:py-14">
-      <div className="absolute inset-0 -z-10 bg-black/25" />
-      <div className="absolute -top-24 right-[-4rem] -z-10 size-56 rounded-full bg-veloura-accent/12 blur-3xl" />
-      <div className="absolute -bottom-28 left-[-5rem] -z-10 size-64 rounded-full bg-veloura-primary/35 blur-3xl" />
+    <div className="relative w-[min(92vw,28rem)] overflow-hidden rounded-[1.75rem] border-2 border-[#3b332d] bg-[#141210] p-6 text-veloura-surface shadow-2xl shadow-black/45 sm:p-8">
+      <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-veloura-accent via-[#d6b17b] to-veloura-primary" />
 
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.45em] text-veloura-accent/80">Raven Brand</p>
-      <h1 className="font-display text-6xl font-bold text-veloura-surface drop-shadow-sm">Login</h1>
-      <p className="mt-3 max-w-sm text-center text-sm leading-6 text-veloura-surface-2/70">Enter your private shelf and continue your next dark coffee read.</p>
+      <div className="space-y-2 border-b border-[#3b332d] pb-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-veloura-accent/80">Raven Brand</p>
+        <h1 className="font-display text-4xl font-bold text-veloura-accent">Login</h1>
+        <p className="max-w-sm text-sm leading-6 text-veloura-inverse/65">Enter your account to continue.</p>
+      </div>
 
-      <form className="mt-9 w-full" onSubmit={loginSubmit}>
-        <div className="flex w-full flex-col gap-5">
+      <form className="mt-6 w-full" onSubmit={loginSubmit}>
+        <div className="flex w-full flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-veloura-surface-2" htmlFor="input-type-email">Email</Label>
+            <Label className="text-sm font-medium text-veloura-inverse/75" htmlFor="input-type-email">Email</Label>
             <Input
-              className="rounded-2xl border border-veloura-border/30 bg-veloura-surface/95 text-veloura-text shadow-inner shadow-black/10 transition focus-within:border-veloura-accent focus-within:ring-2 focus-within:ring-veloura-accent/35"
+              className="rounded-2xl border border-[#3b332d] bg-[#1b1714] px-4 py-3 text-veloura-surface-2 shadow-none outline-none transition placeholder:text-veloura-inverse/35 focus-within:border-veloura-accent focus-within:ring-1 focus-within:ring-veloura-accent/25"
               id="input-type-email"
               name="email"
               value={loginData.email}
@@ -83,48 +80,50 @@ export const LoginForm = ({ setModeAuth, onSuccess }: AuthFormInterface) => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-veloura-surface-2" htmlFor="input-type-password">Password</Label>
-           <div className="space-y-2">
-             <Input
-              className="rounded-2xl border border-veloura-border/30 bg-veloura-surface/95 text-veloura-text shadow-inner shadow-black/10 transition focus-within:border-veloura-accent focus-within:ring-2 focus-within:ring-veloura-accent/35"
-              id="input-type-password"
-              name="password"
-              value={loginData.password}
-              onChange={getLoginData}
-              placeholder="**********"
-              type={showPassword ? 'text' : 'password' }
-              
-            />
-
-            <button onClick={() =>  setShowPassword(!showPassword)}  >{showPassword ? <Eye></Eye> : <EyeOff></EyeOff>}</button>
-
-           </div>
+            <Label className="text-sm font-medium text-veloura-inverse/75" htmlFor="input-type-password">Password</Label>
+            <div className="relative">
+              <input
+                className="h-12 w-full rounded-2xl border border-[#3b332d] bg-[#1b1714] px-4 pr-12 text-sm text-veloura-surface-2 outline-none transition placeholder:text-veloura-inverse/35 focus:border-veloura-accent focus:ring-1 focus:ring-veloura-accent/25"
+                id="input-type-password"
+                name="password"
+                value={loginData.password}
+                onChange={getLoginData}
+                placeholder="**********"
+                type={showPassword ? 'text' : 'password'}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#3b332d] bg-[#141210] text-veloura-inverse/55 transition hover:border-veloura-accent/40 hover:text-veloura-accent"
+              >
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
           </div>
 
           <ButtonPrimary
             type="submit"
-            classname="mt-3 flex h-12 w-full rounded-full border border-veloura-accent/40 bg-veloura-accent font-semibold tracking-[0.18em] text-veloura-text shadow-lg shadow-black/30 transition-all duration-200 hover:scale-[0.98] hover:bg-veloura-surface-offset hover:shadow-veloura-accent/20 active:scale-95"
+            classname="mt-2 flex h-12 w-full rounded-full border border-veloura-accent/30 bg-veloura-accent font-semibold tracking-[0.16em] text-veloura-text shadow-md shadow-black/25 transition hover:bg-[#d4b37a] active:scale-[0.99]"
             label="SIGN IN"
-            // El submit real vive en el form; antes solo devolvias la funcion sin ejecutarla.
             onClick={() => {}}
           />
         </div>
       </form>
 
-      {errorFrontend && <p className="mt-4 text-center text-sm text-red-200">{errorFrontend}</p>}
-      {errorLogin && <p className="mt-4 text-center text-sm text-red-200">{errorLogin}</p>}
+      {errorFrontend && <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-950/40 px-4 py-3 text-sm text-red-100">{errorFrontend}</p>}
+      {errorLogin && <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-950/40 px-4 py-3 text-sm text-red-100">{errorLogin}</p>}
 
-      <div className="mt-6 flex inline-block space-x-1 text-sm text-veloura-surface-2/75">
-        <span>Don't you have an account yet?</span>
-        <span
-          className="cursor-pointer font-semibold text-veloura-accent transition hover:text-veloura-surface"
+      <div className="mt-6 flex items-center justify-center gap-2 text-center text-sm text-veloura-inverse/70">
+        <span>Don't have an account?</span>
+        <button
+          type="button"
+          className="font-semibold text-veloura-accent transition hover:text-veloura-surface"
           onClick={() => setModeAuth()}
         >
           Register
-        </span>
+        </button>
       </div>
-
-      {alertErrorState && <AlertError title="something went wrong with the log in" />}
     </div>
   )
 }
