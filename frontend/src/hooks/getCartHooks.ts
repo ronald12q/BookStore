@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { CartStore } from '../store/cartStore'
 import { authStore } from '../store/authStore'
+import { useNotificationStore } from '../store/notificationStore';
 
 export const GetCart = () => {
     const { setItems, clearCart, refetchTrigger } = CartStore();
     const User = authStore((state) => state.User);
+    const pushNotification = useNotificationStore((state) => state.push);
 
     const [cartLoading, setCartLoading] = useState<boolean>(false);
     const [cartError, setCartError] = useState<string | null>(null);

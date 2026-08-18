@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import cloudinary from "../lib/cloudinary";
 
-// book controller for public request 
+
 
 export const getPublicBooks = async (req: Request, res: Response) => {
   try {
@@ -16,7 +16,10 @@ export const getPublicBooks = async (req: Request, res: Response) => {
               mode: 'insensitive'
             }
           }
-        : undefined
+        : undefined,
+        include:{
+          category: true
+        }
     });
 
     return res.status(200).json(books);
@@ -85,7 +88,7 @@ export const createBook = async (req: Request, res: Response) => {
       const uploadFromBuffer = (buffer: Buffer): Promise<any> => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: 'tienda-libros' }, // Carpeta en tu Cloudinary
+          { folder: 'tienda-libros' }, // Folder in Cloudinary
           (error, result) => {
             if (result) {
               resolve(result);
@@ -137,9 +140,9 @@ export const deleteBook = async(req: Request, res: Response) => {
 
 export const updateBook = async (req: Request, res: Response) => {
  try {
-  // La ruta es '/:id'; rawId nunca existia en req.params.
+  // The route is '/:id'; rawId never existed in req.params.
   const {id: rawId} = req.params;
-  // Express puede tipar params como string[]; Prisma necesita un id string limpio.
+  // Express can type params as string[]; Prisma needs a clean string id.
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const update = {
     ...req.body,
@@ -156,7 +159,7 @@ export const updateBook = async (req: Request, res: Response) => {
    return res.status(401).json({message: "book not found"});
   }
 
-  // Hay que devolver el libro actualizado, no la funcion controller.
+  // Return the updated book, not the controller function.
   return res.status(200).json({message: "book was succesfull updated", book: updatedBook});
 
   

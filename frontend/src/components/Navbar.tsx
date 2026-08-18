@@ -1,8 +1,8 @@
 import { SearchForm } from "./ui/SearchForm";
 import {  Button } from "@heroui/react";
-import { ShoppingCart, BookOpen, LogIn, LogOut, Sidebar} from "lucide-react";
+import { ShoppingCart, BookOpen, LogIn, LogOut, Package, LayoutDashboard } from "lucide-react";
 import { ModalComponent } from "./modal";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RegisterForm } from "./RegisterForm";
 import { authStore } from "../store/authStore";
 import { LoginForm } from "./loginForm";
@@ -12,11 +12,11 @@ import { SidebarComponent } from "./sidebarcomponent";
 type modeAuth = 'login' | 'register';
 
 export const Navbar = () => {
-  const [authModal, setAuthModal]= useState<boolean>(false);
-  const {User, logOut} = authStore();
+  const {User, logOut, authModal, setAuthModal} = authStore();
   const [authMode, setAuthMode] = useState<modeAuth>('login');
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const [sideBar, setSideBar] = useState<boolean>(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
 
@@ -36,10 +36,29 @@ export const Navbar = () => {
       logOut();
     setUserMenuOpen(false);
     navigate('/');
-    }, 200)
+    window.location.reload();
+    }, 800)
 
 
   }
+
+  const handleShopNow = () => {
+    navigate('/');
+    setTimeout(() => {
+      document.getElementById('books')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  }
+
+  useEffect(() => {
+    const closeUserMenu = (event: MouseEvent) => {
+      if (!userMenuRef.current?.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', closeUserMenu);
+    return () => document.removeEventListener('mousedown', closeUserMenu);
+  }, []);
 
   
   return (
@@ -74,7 +93,7 @@ export const Navbar = () => {
     </ModalComponent>
   </>
 ) : (
-  <div className="relative">
+  <div ref={userMenuRef} className="relative">
     <button
       type="button"
       onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -102,6 +121,27 @@ export const Navbar = () => {
           </span>
         </div>
 
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => { setUserMenuOpen(false); navigate('/my-orders'); }}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-veloura-surface-2 transition hover:bg-white/5"
+          >
+            <Package className="size-4" />
+            My Orders
+          </button>
+          {User.user.role === 'ADMIN' && (
+            <button
+              type="button"
+              onClick={() => { setUserMenuOpen(false); navigate('/admin'); }}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-veloura-surface-2 transition hover:bg-white/5"
+            >
+              <LayoutDashboard className="size-4" />
+              Admin Dashboard
+            </button>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={handleLogOut}
@@ -126,7 +166,7 @@ export const Navbar = () => {
             <SidebarComponent isOpen={sideBar} setOpen={sideBarMode} ></SidebarComponent>
 
 
-            <Button className=" transition-transform duration-200 active:scale-95 hover:scale-105 w-32 rounded-full bg-veloura-primary text-veloura-accent hover:bg-veloura-primary-hover">
+            <Button onClick={handleShopNow} className=" transition-transform duration-200 active:scale-95 hover:scale-105 w-32 rounded-full bg-veloura-primary text-veloura-accent hover:bg-veloura-primary-hover">
               Shop now
             </Button>
           </div>

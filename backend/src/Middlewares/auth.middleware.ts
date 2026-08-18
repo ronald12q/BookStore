@@ -20,7 +20,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     try {
         let token;
         if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-            // El header llega como "Bearer TOKEN"; split('') separaba por letras y rompia el JWT.
+            // The header arrives as "Bearer TOKEN"; split('') separated it by characters and broke the JWT.
             token = req.headers.authorization.split(' ')[1];
         }
 

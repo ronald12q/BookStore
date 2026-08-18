@@ -21,18 +21,23 @@ export const deleteCategoryHook = () => {
                 body: JSON.stringify({ id })
             });
 
-            if (!request.ok) throw new Error('The request to the API failed');
+            if (!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to delete category';
+                console.error('[Delete Category Error]', message, errorData);
+                throw new Error(message);
+            }
 
             const data = await request.json();
             return data;
 
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error);
                 setError(error.message);
+                console.error('[Delete Category Error]', error.message);
             } else {
-                console.log('Unknown error during the request', error);
-                setError('Unknown error during the request');
+                setError('An unexpected error occurred');
+                console.error('[Delete Category Error] Unknown error', error);
             }
         } finally {
             setLoading(false);

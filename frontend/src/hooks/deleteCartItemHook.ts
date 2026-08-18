@@ -27,7 +27,12 @@ export const DeleteCartItem = () => {
                 body: JSON.stringify({ Bookid: bookId })
             });
 
-            if (!request.ok) throw new Error('Failed to remove item from cart');
+            if (!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to remove item from cart';
+                console.error('[Delete Cart Item Error]', message, errorData);
+                throw new Error(message);
+            }
 
             triggerRefetch();
             pushNotification({
@@ -38,7 +43,6 @@ export const DeleteCartItem = () => {
 
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error);
                 setError(error.message);
                 pushNotification({
                     title: 'Could not remove item',
@@ -46,10 +50,11 @@ export const DeleteCartItem = () => {
                     status: 'danger'
                 });
             } else {
-                setError('Unknown error during the request');
+                console.error('[Delete Cart Item Error] Unknown error', error);
+                setError('An unexpected error occurred');
                 pushNotification({
                     title: 'Could not remove item',
-                    description: 'Unknown error during the request',
+                    description: 'An unexpected error occurred',
                     status: 'danger'
                 });
             }

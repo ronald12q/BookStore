@@ -43,14 +43,14 @@ export const LoginForm = ({ setModeAuth, onSuccess }: AuthFormInterface) => {
     }
     setLoginData({ email: '', password: '' });
     onSuccess();
-    navigate(authData.user.role    === 'ADMIN' ? '/admin' : '/')
+    navigate(authData.user.role    === 'ADMIN' ? window.location.href ='/admin' : window.location.href = '/');
       
     
     
   }
 
   const getLoginData = (e: ChangeEvent<HTMLInputElement>) => {
-    // El input debe guardar un string; con [e.target.value] estabas guardando un array.
+   
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   }
 

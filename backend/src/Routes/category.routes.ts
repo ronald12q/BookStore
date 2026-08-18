@@ -6,6 +6,6 @@ export const Categoryroutes = express.Router();
 
 
 Categoryroutes.get('/getCategory', getCategory);
-// Las rutas admin necesitan protect primero para llenar req.user antes de revisar el rol.
+// Admin routes need protect first to populate req.user before checking the role.
 Categoryroutes.delete('/:id', protect, adminOnly, deleteCategory);
 Categoryroutes.post('/createCategory', protect, adminOnly, createNewCategory);

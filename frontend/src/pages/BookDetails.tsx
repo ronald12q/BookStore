@@ -1,12 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useBookStore } from "../store/bookStore";
 import type { Book } from "../utilities/bookInterface";
+import { ReviewSection } from "../components/ReviewSection";
+import { CreateCartItem } from "../hooks/createCartItemHook";
 
 export const BookDetails = () => {
 	const { slug } = useParams();
 	const navigate = useNavigate();
 
 	const {allBooks, category} = useBookStore();
+	const { requestCreateCartItem } = CreateCartItem();
 
 	const current : Book | undefined = allBooks.find(book => book.slug === slug); 
 	const categoryName = current ? (current.category?.name ?? category.find((item) => item.id === current.categoryId)?.name) : undefined;
@@ -116,6 +119,7 @@ export const BookDetails = () => {
 							<div className="flex flex-col gap-3 sm:flex-row">
 								<button
 									type="button"
+									onClick={() => requestCreateCartItem(current.id)}
 									className="flex-1 rounded-full bg-veloura-accent px-6 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-veloura-text transition hover:bg-[#d6b17b]"
 								>
 									Add to cart
@@ -131,6 +135,8 @@ export const BookDetails = () => {
 						</div>
 					</div>
 				</div>
+
+				<ReviewSection bookId={current.id} />
 			</div>
 		</main>
 	);

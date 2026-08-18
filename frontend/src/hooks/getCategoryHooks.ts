@@ -13,20 +13,23 @@ export const getCategoryHook = () => {
             setLoading(true);
 
             const request = await fetch('http://localhost:4000/api/Category/getCategory');
-            if(!request.ok) throw new Error('something went wrong during the request');
+            if(!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to fetch categories';
+                console.error('[Get Categories Error]', message, errorData);
+                throw new Error(message);
+            }
             const data = await request.json();
             setCategory(data);
 
         } catch (error) {
-
             if( error instanceof Error){
-                console.error(error);
                 setError(error.message);
+                console.error('[Get Categories Error]', error.message);
             }else{
-                console.error('unknown error', error);
-                setError('unknown error');
+                setError('An unexpected error occurred');
+                console.error('[Get Categories Error] Unknown error', error);
             }
-
         }finally{
             setLoading(false);
         }

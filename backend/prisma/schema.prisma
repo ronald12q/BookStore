@@ -18,6 +18,7 @@ model User {
   name      String
   role      Role      @default(CUSTOMER)
   orders    Order[]
+  reviews   Review[]
   createdAt DateTime  @default(now())
   cart      Cart?
 }
@@ -67,6 +68,7 @@ model Book {
   categoryId  String
   category    Category    @relation(fields: [categoryId], references: [id])
   orderItems  OrderItem[]
+  reviews     Review[]
   createdAt   DateTime    @default(now())
 }
 
@@ -90,6 +92,19 @@ model OrderItem {
   book      Book    @relation(fields: [bookId], references: [id])
   quantity  Int
   price     Float   
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, bookId])
 }
 
 enum Role {

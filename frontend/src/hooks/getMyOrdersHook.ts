@@ -13,7 +13,6 @@ export const getMyOrdersHook = () => {
             setLoading(true);
             setError(null);
 
-            // El backend separa esta ruta de la ruta admin /all.
             const request = await fetch('http://localhost:4000/api/Order/my-orders', {
                 method: 'GET',
                 headers: {
@@ -21,18 +20,23 @@ export const getMyOrdersHook = () => {
                 }
             });
 
-            if (!request.ok) throw new Error('The request to the API failed');
+            if (!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to fetch orders';
+                console.error('[My Orders Error]', message, errorData);
+                throw new Error(message);
+            }
 
             const data = await request.json();
             setOrders(data);
 
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error);
                 setError(error.message);
+                console.error('[My Orders Error]', error.message);
             } else {
-                console.log('Unknown error during the request', error);
-                setError('Unknown error during the request');
+                setError('An unexpected error occurred');
+                console.error('[My Orders Error] Unknown error', error);
             }
         } finally {
             setLoading(false);

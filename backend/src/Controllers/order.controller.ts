@@ -1,65 +1,113 @@
 import { Request, Response } from 'express';
-import {prisma} from '../lib/prisma' 
- 
+import { prisma } from '../lib/prisma';
 
-
-export const createOrder = async (req: Request, res: Response) => {
+export const checkout = async (req: Request, res: Response) => {
   try {
-   
-    const { items, address } = req.body; 
-    const userId = req.user.id; 
+    const userId = req.user.id;
 
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: 'El carrito está vacío' });
-    }
-
-    
-    const bookIds = items.map((item: any) => item.bookId);
-    const booksInDb = await prisma.book.findMany({
-      where: { id: { in: bookIds } }
+    const cart = await prisma.cart.findUnique({
+      where: { userId },
+      include: {
+        items: {
+          include: { book: true },
+        },
+      },
     });
 
-    
-    let calculatedTotal = 0;
-    const orderItemsData = items.map((item: any) => {
-      const book = booksInDb.find(b => b.id === item.bookId);
-      
-      if (!book) throw new Error(`El libro con ID ${item.bookId} no existe`);
-      if (book.stock < item.quantity) throw new Error(`No hay suficiente stock para ${book.title}`);
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: 'Your cart is empty' });
+    }
 
-      const itemTotal = book.price * item.quantity;
+    let calculatedTotal = 0;
+    const orderItemsData = cart.items.map((item) => {
+      if (item.book.stock < item.quantity) {
+        throw new Error(`Not enough stock for "${item.book.title}"`);
+      }
+      const itemTotal = item.book.price * item.quantity;
       calculatedTotal += itemTotal;
 
       return {
-        bookId: book.id,
+        bookId: item.bookId,
         quantity: item.quantity,
-        price: book.price 
+        price: item.book.price,
       };
     });
 
-    
     const order = await prisma.order.create({
       data: {
         userId,
-        address,
+        address: 'Digital delivery',
         total: calculatedTotal,
-        status: 'PENDING', 
+        status: 'PENDING',
         items: {
-          create: orderItemsData 
-        }
+          create: orderItemsData,
+        },
       },
-      include: { items: true } 
+      include: {
+        items: {
+          include: { book: { select: { title: true, imageUrl: true, slug: true, price: true } } },
+        },
+      },
     });
 
-    
-
-    res.status(201).json({ message: 'Order created', order });
+    return res.status(201).json({ orderId: order.id, total: calculatedTotal, items: order.items });
   } catch (error) {
     console.error(error);
-        res.status(500).json({message: 'something went wrong during the action', error: (error as Error).message});
+    return res.status(500).json({
+      message: 'Something went wrong during checkout',
+      error: (error as Error).message,
+    });
   }
 };
 
+export const confirmPayment = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.body;
+    const userId = req.user.id;
+
+    if (!orderId) {
+      return res.status(400).json({ message: 'Order ID is required' });
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId, userId },
+      include: { items: true },
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.status !== 'PENDING') {
+      return res.status(400).json({ message: 'Order is already processed' });
+    }
+
+    for (const item of order.items) {
+      await prisma.book.update({
+        where: { id: item.bookId },
+        data: { stock: { decrement: item.quantity } },
+      });
+    }
+
+    const cart = await prisma.cart.findUnique({ where: { userId } });
+    if (cart) {
+      await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'PAID' },
+    });
+
+    return res.status(200).json({ message: 'Payment confirmed', order: updatedOrder });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Something went wrong confirming payment',
+      error: (error as Error).message,
+    });
+  }
+};
 
 export const getMyOrders = async (req: Request, res: Response) => {
   try {
@@ -68,57 +116,64 @@ export const getMyOrders = async (req: Request, res: Response) => {
       orderBy: { createdAt: 'desc' },
       include: {
         items: {
-          include: { book: { select: { title: true, imageUrl: true } } } // Traemos datos del libro para la UI
-        }
-      }
+          include: { book: { select: { title: true, imageUrl: true, slug: true } } },
+        },
+      },
     });
 
-    res.status(200).json(orders);
+    return res.status(200).json(orders);
   } catch (error) {
     console.error(error);
-        res.status(500).json({message: 'something went wrong during the action', error: (error as Error).message});
+    return res.status(500).json({
+      message: 'Something went wrong during the action',
+      error: (error as Error).message,
+    });
   }
 };
-
 
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { name: true, email: true } } 
-      }
+        user: { select: { name: true, email: true } },
+        items: {
+          include: { book: { select: { title: true, imageUrl: true } } },
+        },
+      },
     });
 
-    res.status(200).json(orders);
+    return res.status(200).json(orders);
   } catch (error) {
     console.error(error);
-        res.status(500).json({message: 'something went wrong during the action', error: (error as Error).message});
+    return res.status(500).json({
+      message: 'Something went wrong during the action',
+      error: (error as Error).message,
+    });
   }
 };
 
-
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
-    // La ruta es '/:id'; idParam nunca existia en req.params.
-    const { id: rawId } = req.params;
-    // Express puede tipar params como string[]; Prisma necesita un id string limpio.
-    const id = Array.isArray(rawId) ? rawId[0] : rawId;
+    const id = req.params.id as string;
     const { status } = req.body;
 
     const validStatuses = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: 'state not match' });
+      return res.status(400).json({ message: 'Invalid status' });
     }
 
     const order = await prisma.order.update({
       where: { id },
-      data: { status }
+      data: { status },
     });
 
-    res.status(200).json({ message: 'state has been updated', order });
+    return res.status(200).json({ message: 'Order status updated', order });
   } catch (error) {
     console.error(error);
-        res.status(500).json({message: 'something went wrong during the action', error: (error as Error).message});
+    return res.status(500).json({
+      message: 'Something went wrong during the action',
+      error: (error as Error).message,
+    });
   }
 };

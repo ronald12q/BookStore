@@ -6,7 +6,7 @@ interface BookStore {
     category: Category[],
     setBooks: (books : Book[]) => void,
     setCategory : (categorys:Category[]) => void,
-    setSlug : (slug: string) => void
+    setSlug : (slug: string | null ) => void
     slugCategory: string | null;
 }
 
@@ -20,8 +20,8 @@ export const useBookStore = create<BookStore>((set) => ({
   
   setBooks: (books : Book[]) => set({allBooks: books}),
   setCategory: (categorys: Category[]) => set({category: categorys}),
-  setSlug: (slug: string) => set({slugCategory: slug})
-
+  setSlug: (slug: string | null) => set({slugCategory: slug})
+ 
 
 
 }))

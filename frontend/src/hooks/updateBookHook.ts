@@ -21,18 +21,23 @@ export const updateBookHook = () => {
                 body: JSON.stringify(data)
             });
 
-            if (!request.ok) throw new Error('The request to the API failed');
+            if (!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to update book';
+                console.error('[Update Book Error]', message, errorData);
+                throw new Error(message);
+            }
 
             const result = await request.json();
             return result;
 
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error);
                 setError(error.message);
+                console.error('[Update Book Error]', error.message);
             } else {
-                console.log('Unknown error during the request', error);
-                setError('Unknown error during the request');
+                setError('An unexpected error occurred');
+                console.error('[Update Book Error] Unknown error', error);
             }
         } finally {
             setLoading(false);

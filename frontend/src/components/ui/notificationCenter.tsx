@@ -1,12 +1,12 @@
 import { Alert, CloseButton, Spinner } from "@heroui/react";
 import { useEffect } from "react";
-import { useNotificationStore } from "../../store/notificationStore";
+import { useNotificationStore, type NotificationStatus } from "../../store/notificationStore";
 
-const statusClass: Record<string, string> = {
+const statusClass: Record<NotificationStatus, "success" | "danger" | "warning" | "default"> = {
   success: 'success',
   danger: 'danger',
   warning: 'warning',
-  accent: 'accent',
+  accent: 'default',
 };
 
 export const NotificationCenter = () => {
@@ -24,8 +24,8 @@ export const NotificationCenter = () => {
   return (
     <div className="fixed bottom-4 right-4 z-[100] flex w-[min(92vw,24rem)] flex-col gap-3 sm:bottom-6 sm:right-6">
       {items.map((item) => (
-        <Alert key={item.id} status={statusClass[item.status]} className="border border-white/10 bg-[#151311]/95 shadow-2xl shadow-black/50 backdrop-blur-xl">
-          <Alert.Indicator>
+        <Alert key={item.id} status={statusClass[item.status]} className="animate-notification-in border border-white/10 bg-[#151311]/95 shadow-2xl shadow-black/50 backdrop-blur-xl">
+          <Alert.Indicator className="animate-notification-pulse">
             {item.status === 'accent' ? <Spinner size="sm" /> : <span className="block size-2.5 rounded-full bg-current" />}
           </Alert.Indicator>
           <Alert.Content>

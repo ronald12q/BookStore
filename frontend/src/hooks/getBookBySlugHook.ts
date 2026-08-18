@@ -10,20 +10,23 @@ export const getBookBySlugHook = () => {
             setLoading(true);
 
             const request = await fetch(`http://localhost:4000/api/Book?slug=${slug}`);
-            if(!request.ok) throw new Error('something went wrong during the request');
+            if(!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to fetch book';
+                console.error('[Get Book By Slug Error]', message, errorData);
+                throw new Error(message);
+            }
             const data = await request.json();
             return data;
 
         } catch (error) {
-
             if( error instanceof Error){
-                console.error(error);
                 setError(error.message);
+                console.error('[Get Book By Slug Error]', error.message);
             }else{
-                console.error('unknown error', error);
-                setError('unknown error');
+                setError('An unexpected error occurred');
+                console.error('[Get Book By Slug Error] Unknown error', error);
             }
-
         }finally{
             setLoading(false);
         }

@@ -9,8 +9,8 @@ interface ModalProps {
 
 export const ModalComponent = ({ isOpen, children, onOpenChange }: ModalProps) => {
   return (
-    // isOpen y onOpenChange van aquí en el Modal raíz
-    // que es quien realmente controla el estado
+    // isOpen and onOpenChange belong on the root Modal,
+    // which is the component that actually controls state.
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <Modal.Backdrop>
         <Modal.Container>

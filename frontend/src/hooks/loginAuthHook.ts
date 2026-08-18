@@ -25,7 +25,12 @@ export const LoginHook = () => {
                 body: JSON.stringify({ email, password }) 
             });
 
-            if (!request.ok) throw new Error('The request to the API failed');
+            if (!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Login failed';
+                console.error('[Login Error]', message, errorData);
+                throw new Error(message);
+            }
             
             const data = await request.json();
             setUser(data);
@@ -34,17 +39,10 @@ export const LoginHook = () => {
                 description: 'You have logged in successfully.',
                 status: 'success'
             });
-            console.log('login exitoso');
             return data;
-            
-            
-            
-           
-            
             
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error);
                 setErrorLogin(error.message);
                 pushNotification({
                     title: 'Login failed',
@@ -52,11 +50,11 @@ export const LoginHook = () => {
                     status: 'danger'
                 });
             } else {
-                console.log('Unknown error during the request', error);
-                setErrorLogin('Unknown error during the request');
+                console.error('[Login Error] Unknown error', error);
+                setErrorLogin('An unexpected error occurred');
                 pushNotification({
                     title: 'Login failed',
-                    description: 'Unknown error during the request',
+                    description: 'An unexpected error occurred',
                     status: 'danger'
                 });
             }

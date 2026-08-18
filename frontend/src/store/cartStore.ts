@@ -18,3 +18,5 @@ export const CartStore = create<CartStoreInterface>()(
         triggerRefetch: () => set((state) => ({refetchTrigger: state.refetchTrigger + 1}))
     })
 )
+
+

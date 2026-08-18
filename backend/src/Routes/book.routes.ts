@@ -12,8 +12,8 @@ const upload = multer({storage: multer.memoryStorage()});
 
 Bookroutes.get('/getBooks', getPublicBooks);
 Bookroutes.get('/', getBookBySlug);
-// protect debe ir antes de adminOnly porque adminOnly necesita req.user.
+// protect must run before adminOnly because adminOnly needs req.user.
 Bookroutes.post('/createBook', protect, adminOnly, upload.single('image'), createBook );
-// El orden correcto es token -> rol -> controller; antes protect corria al final.
+// The correct order is token -> role -> controller; protect used to run last.
 Bookroutes.delete('/:id', protect, adminOnly, deleteBook);
 Bookroutes.patch('/:id', protect, adminOnly, updateBook);

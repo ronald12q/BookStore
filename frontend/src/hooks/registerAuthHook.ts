@@ -25,7 +25,12 @@ export const RegisterHook = () => {
                 body: JSON.stringify({ name, email, password }) 
             });
 
-            if (!request.ok) throw new Error('The request to the API failed');
+            if (!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Registration failed';
+                console.error('[Register Error]', message, errorData);
+                throw new Error(message);
+            }
             
             const data = await request.json();
             setUser(data);
@@ -34,15 +39,10 @@ export const RegisterHook = () => {
                 description: 'Your account is ready.',
                 status: 'success'
             });
-            console.log('datos guardados con exito')
             return true;
-            
-           
-            
             
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error);
                 setErrorRegister(error.message);
                 pushNotification({
                     title: 'Register failed',
@@ -50,11 +50,11 @@ export const RegisterHook = () => {
                     status: 'danger'
                 });
             } else {
-                console.log('Unknown error during the request', error);
-                setErrorRegister('Unknown error during the request');
+                console.error('[Register Error] Unknown error', error);
+                setErrorRegister('An unexpected error occurred');
                 pushNotification({
                     title: 'Register failed',
-                    description: 'Unknown error during the request',
+                    description: 'An unexpected error occurred',
                     status: 'danger'
                 });
             }

@@ -17,25 +17,26 @@ export const getBooksHook = () => {
             const request = param
                 ? await fetch(`http://localhost:4000/api/Book/getBooks?nameBook=${encodeURIComponent(param)}`)
                 : await fetch('http://localhost:4000/api/Book/getBooks');
-            if(!request.ok) throw new Error('something went wrong during the request');
+            if(!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to fetch books';
+                console.error('[Get Books Error]', message, errorData);
+                throw new Error(message);
+            }
             const data = await request.json();
             setBooks(data);
-        
 
             
         } catch (error) {
             
             if( error instanceof Error){
-                console.error(error);
                 setError(error.message);
+                console.error('[Get Books Error]', error.message);
             }else{
-                console.error('unknown error', error);
-                setError('unknown error');
-                
-                
+                setError('An unexpected error occurred');
+                console.error('[Get Books Error] Unknown error', error);
             }
              
-            
         }finally{
             setLoading(false);
         }

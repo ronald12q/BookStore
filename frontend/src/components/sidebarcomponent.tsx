@@ -1,6 +1,7 @@
 import { authStore } from "../store/authStore";
 import { CartStore } from "../store/cartStore";
 import { DeleteCartItem } from "../hooks/deleteCartItemHook";
+import { useCheckout } from "../hooks/checkoutHook";
 
 interface SideBarProps {
   isOpen : boolean,
@@ -11,8 +12,17 @@ export const SidebarComponent = ({isOpen, setOpen}: SideBarProps) => {
   const User = authStore((state) => state.User);
   const { cartItems } = CartStore();
   const { requestDeleteCartItem } = DeleteCartItem();
+  const { checkout, loading: checkoutLoading } = useCheckout();
 
   const total = cartItems?.reduce((sum, item) => sum + item.book.price * item.quantity, 0) ?? 0;
+
+  const handleProceedToPay = async () => {
+    const stripeUrl = await checkout();
+    if (stripeUrl) {
+      setOpen(false);
+      window.location.href = stripeUrl;
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -43,7 +53,7 @@ export const SidebarComponent = ({isOpen, setOpen}: SideBarProps) => {
               <p className="text-xs uppercase tracking-[0.35em] text-veloura-inverse/45">Your cart</p>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-veloura-accent">Selected Books</h2>
               <p className="mt-2 text-sm leading-6 text-veloura-inverse/60">
-                Revisa los libros que agregaste antes de proceder al pago.
+                Review the books you added before proceeding to checkout.
               </p>
             </div>
 
@@ -104,9 +114,11 @@ export const SidebarComponent = ({isOpen, setOpen}: SideBarProps) => {
 
               <button
                 type="button"
-                className="w-full rounded-full bg-veloura-accent px-5 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-veloura-text shadow-lg shadow-black/30 transition hover:scale-[0.99] hover:bg-[#d6b17b]"
+                disabled={checkoutLoading || !cartItems || cartItems.length === 0}
+                onClick={handleProceedToPay}
+                className="w-full rounded-full bg-veloura-accent px-5 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-veloura-text shadow-lg shadow-black/30 transition hover:scale-[0.99] hover:bg-[#d6b17b] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Proceed to pay
+                {checkoutLoading ? 'Processing...' : 'Proceed to pay'}
               </button>
             </div>
           </>

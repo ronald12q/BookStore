@@ -6,13 +6,24 @@ import { useNotificationStore } from "../store/notificationStore";
 export const CreateCartItem = () => {
     const { triggerRefetch } = CartStore();
     const pushNotification = useNotificationStore((state) => state.push);
+    const setAuthModal = authStore((state) => state.setAuthModal);
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     const requestCreateCartItem = async (bookId: string) => {
-        const token = authStore.getState().User?.token;
-        if (!token) return;
+        const user = authStore.getState().User;
+        const token = user?.token;
+
+        if (!user || !token) {
+            setAuthModal(true);
+            pushNotification({
+                title: 'Sign in required',
+                description: 'You need to sign in first to add books to your cart.',
+                status: 'danger'
+            });
+            return;
+        }
 
         try {
             setLoading(true);
@@ -27,7 +38,12 @@ export const CreateCartItem = () => {
                 body: JSON.stringify({ Bookid: bookId })
             });
 
-            if (!request.ok) throw new Error('Failed to add item to cart');
+            if (!request.ok) {
+                const errorData = await request.json();
+                const message = errorData?.message || 'Failed to add item to cart';
+                console.error('[Add to Cart Error]', message, errorData);
+                throw new Error(message);
+            }
 
             triggerRefetch();
             pushNotification({
@@ -38,7 +54,6 @@ export const CreateCartItem = () => {
 
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error);
                 setError(error.message);
                 pushNotification({
                     title: 'Could not add item',
@@ -46,10 +61,11 @@ export const CreateCartItem = () => {
                     status: 'danger'
                 });
             } else {
-                setError('Unknown error during the request');
+                console.error('[Add to Cart Error] Unknown error', error);
+                setError('An unexpected error occurred');
                 pushNotification({
                     title: 'Could not add item',
-                    description: 'Unknown error during the request',
+                    description: 'An unexpected error occurred',
                     status: 'danger'
                 });
             }

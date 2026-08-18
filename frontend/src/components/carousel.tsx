@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Book } from "../utilities/bookInterface";
+import { CreateCartItem } from "../hooks/createCartItemHook";
+
 
 
 
@@ -11,12 +13,13 @@ type CarouselProps = {
 
 export const Carousel = ({ items }: CarouselProps) => {
     const [current, setCurrent] = useState(0);
+    const {requestCreateCartItem } = CreateCartItem();
 
     if (items.length === 0) {
         return (
             <section className="relative min-h-screen overflow-hidden text-veloura-surface-2">
                 <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 py-12">
-                    <p className="text-xl text-veloura-surface-offset/80">No hay libros para mostrar.</p>
+                    <p className="text-xl text-veloura-surface-offset/80">No books to show.</p>
                 </div>
             </section>
         );
@@ -44,7 +47,7 @@ export const Carousel = ({ items }: CarouselProps) => {
             <button
                 type="button"
                 onClick={prev}
-                aria-label="Libro anterior"
+                aria-label="Previous book"
                 className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-veloura-border/40 bg-black/30 px-4 py-3 text-2xl font-bold text-veloura-surface-2 transition hover:scale-105 hover:bg-black/45"
             >
                 ←
@@ -52,7 +55,7 @@ export const Carousel = ({ items }: CarouselProps) => {
             <button
                 type="button"
                 onClick={next}
-                aria-label="Siguiente libro"
+                aria-label="Next book"
                 className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-veloura-border/40 bg-black/30 px-4 py-3 text-2xl font-bold text-veloura-surface-2 transition hover:scale-105 hover:bg-black/45"
             >
                 →
@@ -71,17 +74,17 @@ export const Carousel = ({ items }: CarouselProps) => {
                     <p className="mb-8 text-3xl font-semibold text-veloura-accent">${activeItem.price.toFixed(2)}</p>
 
                     <div className="flex flex-wrap items-center gap-4">
-                        <Link
-                            to={`/checkout?book=${activeItem.id}`}
+                        <button
+                            onClick={() => requestCreateCartItem(activeItem.id)}
                             className="rounded-full border border-veloura-accent bg-veloura-accent px-6 py-3 text-sm font-semibold uppercase tracking-wide text-veloura-text transition hover:scale-105 hover:bg-[#d6b17b]"
                         >
-                            Agregar carrito
-                        </Link>
+                            Add to cart
+                        </button>
                         <Link
                             to={`/book/${activeItem.slug}`}
                             className="rounded-full border border-veloura-border/60 bg-transparent px-6 py-3 text-sm font-semibold uppercase tracking-wide text-veloura-surface-2 transition hover:scale-105 hover:border-veloura-accent hover:text-veloura-accent"
                         >
-                            Ver detalles
+                            View details
                         </Link>
                     </div>
                 </div>
@@ -90,7 +93,7 @@ export const Carousel = ({ items }: CarouselProps) => {
                       <div className="absolute -inset-4 rounded-[2rem] bg-[radial-gradient(circle,rgba(198,161,106,0.28),transparent_70%)]" />
                     <img
                         src={activeItem.imageUrl}
-                        alt={`Portada de ${activeItem.title}`}
+                        alt={`Cover of ${activeItem.title}`}
                         className="relative z-10 h-140 w-full rounded-[2rem] border border-veloura-border/50 object-cover shadow-2xl"
                     />
                 </div>
@@ -102,7 +105,7 @@ export const Carousel = ({ items }: CarouselProps) => {
                         key={item.id}
                         type="button"
                         onClick={() => goTo(index)}
-                        aria-label={`Ir al libro ${index + 1}`}
+                        aria-label={`Go to book ${index + 1}`}
                         className={`h-3 w-3 rounded-full transition ${
                             current === index ? "scale-125 bg-veloura-accent" : "bg-veloura-surface-offset/70 hover:bg-veloura-surface-2"
                         }`}

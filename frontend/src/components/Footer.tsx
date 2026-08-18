@@ -11,22 +11,22 @@ export const Footer = () => {
                             <h3 className="text-veloura-accent font-bold">Raven Brand</h3>
                         </div>
                         <p className="text-veloura-surface-2/70 text-sm leading-relaxed text-muted-foreground">
-                            Tu biblioteca digital favorita. Descubre, explora y enamórate de la lectura.
+                            Your favorite digital library. Discover, explore, and fall in love with reading.
                         </p>
                     </div>
 
                     {[
                         {
-                            title: "Explorar",
-                            links: ["Bestsellers", "Novedades", "Clásicos", "Recomendados"],
+                            title: "Explore",
+                            links: ["Bestsellers", "New Arrivals", "Classics", "Recommended"],
                         },
                         {
-                            title: "Categorías",
-                            links: ["Ficción", "No Ficción", "Ciencia", "Arte"],
+                            title: "Categories",
+                            links: ["Fiction", "Nonfiction", "Science", "Art"],
                         },
                         {
-                            title: "Compañía",
-                            links: ["Sobre Nosotros", "Blog", "Contacto", "Términos"],
+                            title: "Company",
+                            links: ["About Us", "Blog", "Contact", "Terms"],
                         },
                     ].map((col) => (
                         <div key={col.title}>
@@ -52,13 +52,13 @@ export const Footer = () => {
 
                 <div className="border-t border-veloura-border/40 mt-6 pt-8 border-border justify-between flex flex-col md:flex-row items-center">
                     <p className="text-veloura-surface-2 text-sm">
-                        © 2026 Raven Brand. Todos los derechos reservados.
+                        © 2026 Raven Brand. All rights reserved.
                     </p>
 
                     <p className="inline-flex items-center gap-1 whitespace-nowrap text-sm text-veloura-surface-2">
-                        <span>Hecho con </span>
+                        <span>Made with </span>
                         <Heart className="h-3.5 w-3.5 fill-veloura-accent text-veloura-accent" />
-                        <span>para los amantes de libros</span>
+                        <span>for book lovers</span>
                     </p>
                 </div>
             </div>
