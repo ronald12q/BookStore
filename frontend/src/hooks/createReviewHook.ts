@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { authStore } from "../store/authStore";
 import { useNotificationStore } from "../store/notificationStore";
@@ -22,7 +23,7 @@ export const useCreateReview = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('http://localhost:4000/api/Review', {
+      const response = await fetch(`${API_URL}/api/Review`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

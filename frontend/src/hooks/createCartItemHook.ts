@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { CartStore } from "../store/cartStore"
 import { authStore } from "../store/authStore"
@@ -29,7 +30,7 @@ export const CreateCartItem = () => {
             setLoading(true);
             setError(null);
 
-            const request = await fetch('http://localhost:4000/api/Cart/addItem', {
+            const request = await fetch(`${API_URL}/api/Cart/addItem`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

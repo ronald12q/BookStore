@@ -16,7 +16,6 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useBookStore } from "../store/bookStore";
 import { authStore } from "../store/authStore";
 import { getBooksHook } from "../hooks/getBookHook";
@@ -86,7 +85,6 @@ const createSlug = (value: string) =>
     .replace(/^-|-$/g, "");
 
 export const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<DashboardSection>("Overview");
   const [bookFormOpen, setBookFormOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);

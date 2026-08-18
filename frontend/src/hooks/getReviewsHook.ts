@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useEffect, useState } from "react";
 
 export type Review = {
@@ -24,7 +25,7 @@ export const useGetReviews = (bookId: string) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`http://localhost:4000/api/Review/${bookId}`);
+      const response = await fetch(`${API_URL}/api/Review/${bookId}`);
 
       if (!response.ok) {
         const errorData = await response.json();

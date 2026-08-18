@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { authStore } from "../store/authStore";
 
@@ -13,7 +14,7 @@ export const getMyOrdersHook = () => {
             setLoading(true);
             setError(null);
 
-            const request = await fetch('http://localhost:4000/api/Order/my-orders', {
+            const request = await fetch(`${API_URL}/api/Order/my-orders`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${User?.token}`

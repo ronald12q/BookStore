@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useEffect, useState } from 'react';
 import { CartStore } from '../store/cartStore'
 import { authStore } from '../store/authStore'
@@ -19,7 +20,7 @@ export const GetCart = () => {
             setCartLoading(true);
             setCartError(null);
 
-            const request = await fetch('http://localhost:4000/api/Cart/getCart', {
+            const request = await fetch(`${API_URL}/api/Cart/getCart`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

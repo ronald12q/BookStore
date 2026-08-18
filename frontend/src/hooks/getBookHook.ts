@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { useBookStore } from "../store/bookStore";
 
@@ -15,8 +16,8 @@ export const getBooksHook = () => {
             setLoading(true);
 
             const request = param
-                ? await fetch(`http://localhost:4000/api/Book/getBooks?nameBook=${encodeURIComponent(param)}`)
-                : await fetch('http://localhost:4000/api/Book/getBooks');
+                ? await fetch(`${API_URL}/api/Book/getBooks?nameBook=${encodeURIComponent(param)}`)
+                : await fetch(`${API_URL}/api/Book/getBooks`);
             if(!request.ok) {
                 const errorData = await request.json();
                 const message = errorData?.message || 'Failed to fetch books';

@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { useBookStore } from "../store/bookStore";
 
@@ -12,7 +13,7 @@ export const getCategoryHook = () => {
         try {
             setLoading(true);
 
-            const request = await fetch('http://localhost:4000/api/Category/getCategory');
+            const request = await fetch(`${API_URL}/api/Category/getCategory`);
             if(!request.ok) {
                 const errorData = await request.json();
                 const message = errorData?.message || 'Failed to fetch categories';

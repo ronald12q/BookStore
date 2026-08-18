@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { authStore } from "../store/authStore";
 import type { registerInterface } from "../utilities/authInterface";
@@ -16,7 +17,7 @@ export const RegisterHook = () => {
             setLoadingRegister(true);
             setErrorRegister(null); 
 
-            const request = await fetch('http://localhost:4000/api/auth/register', {
+            const request = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

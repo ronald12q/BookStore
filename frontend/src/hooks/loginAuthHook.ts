@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { authStore } from "../store/authStore";
 import type { loginInterface } from "../utilities/authInterface";
@@ -16,7 +17,7 @@ export const LoginHook = () => {
             setLoadingLogin(true);
             setErrorLogin(null); 
 
-            const request = await fetch('http://localhost:4000/api/auth/login', {
+            const request = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

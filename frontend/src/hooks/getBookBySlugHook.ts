@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 
 export const getBookBySlugHook = () => {
@@ -9,7 +10,7 @@ export const getBookBySlugHook = () => {
         try {
             setLoading(true);
 
-            const request = await fetch(`http://localhost:4000/api/Book?slug=${slug}`);
+            const request = await fetch(`${API_URL}/api/Book?slug=${slug}`);
             if(!request.ok) {
                 const errorData = await request.json();
                 const message = errorData?.message || 'Failed to fetch book';

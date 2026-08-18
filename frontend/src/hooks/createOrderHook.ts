@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/api";
 import { useState } from "react";
 import { authStore } from "../store/authStore";
 
@@ -12,7 +13,7 @@ export const createOrderHook = () => {
             setLoading(true);
             setError(null);
 
-            const request = await fetch('http://localhost:4000/api/Order', {
+            const request = await fetch(`${API_URL}/api/Order`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
