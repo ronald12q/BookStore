@@ -7,10 +7,6 @@ export const getCategory = async (req: Request, res: Response) => {
     try {
 
         const categories = await prisma.category.findMany({orderBy:{name: 'asc'}});
-        
-        if(categories.length === 0){
-            return res.status(400).json({message: 'categories not found'})
-        }
 
         return res.status(200).json(categories);
         
@@ -60,7 +56,7 @@ export const createNewCategory = async(req: Request, res: Response) => {
 
 export const deleteCategory = async(req: Request, res: Response) => {
     try {
-        const {id} = req.body;
+        const {id} = req.params;
         
         const booksInCategory = await prisma.book.findFirst({where:{categoryId: id}});
 

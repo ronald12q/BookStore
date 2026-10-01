@@ -110,7 +110,27 @@ export const AdminDashboard = () => {
   const pendingOrders = adminOrders.filter((order) => order.status === "PENDING").length;
   const lowStockBooks = allBooks.filter((book) => book.stock <= 5).length;
   const totalRevenue = adminOrders.reduce((total, order) => total + Number(order.total || 0), 0);
-  const dashboardError = getBooksError || getCategoriesError || createBookError || updateBookError || deleteBookError || createCategoryError || deleteCategoryError || getOrdersError || updateOrderError;
+
+  // Collect the latest hook error and auto-clear it after 5 seconds
+  const latestHookError = getBooksError || getCategoriesError || createBookError || updateBookError || deleteBookError || createCategoryError || deleteCategoryError || getOrdersError || updateOrderError;
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (latestHookError) {
+      setDashboardError(latestHookError);
+      const timer = setTimeout(() => setDashboardError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [latestHookError]);
+
+  // Auto-clear success messages too
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
 
   const stats = [
     { label: "Total Books", value: String(allBooks.length), detail: `${lowStockBooks} low stock`, icon: BookOpen },

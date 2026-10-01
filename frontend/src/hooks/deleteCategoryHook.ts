@@ -16,10 +16,8 @@ export const deleteCategoryHook = () => {
             const request = await fetch(`${API_URL}/api/Category/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${User?.token}`
-                },
-                body: JSON.stringify({ id })
+                }
             });
 
             if (!request.ok) {

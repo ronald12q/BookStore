@@ -16,10 +16,8 @@ export const deleteBookHook = () => {
             const request = await fetch(`${API_URL}/api/Book/${bookId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${User?.token}`
-                },
-                body: JSON.stringify({ bookId })
+                }
             });
 
             if (!request.ok) {

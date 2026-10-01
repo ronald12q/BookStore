@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Carousel } from "../components/carousel"
 import { getBooksHook } from "../hooks/getBookHook";
 import { getCategoryHook } from "../hooks/getCategoryHooks";
@@ -16,17 +16,43 @@ export const Home = () => {
   useEffect(() => {
     getApiBook();
     getApiCategory();
-
-
   },[])
 
-
-  
-
-  const caruselBooks : Book[] = allBooks.slice(0, 3);
-  
   const {getApiCategory} = getCategoryHook ();
   const {getApiBook} = getBooksHook();
+
+  // Pick up to 8 books for the carousel, distributed across categories
+  const carouselBooks: Book[] = useMemo(() => {
+    if (allBooks.length <= 8) return allBooks;
+
+    const byCategory = new Map<string, Book[]>();
+    for (const book of allBooks) {
+      const key = book.categoryId ?? "_none";
+      if (!byCategory.has(key)) byCategory.set(key, []);
+      byCategory.get(key)!.push(book);
+    }
+
+    const picked: Book[] = [];
+    const categoryKeys = [...byCategory.keys()];
+    let round = 0;
+
+    while (picked.length < 8) {
+      let addedThisRound = false;
+      for (const key of categoryKeys) {
+        if (picked.length >= 8) break;
+        const list = byCategory.get(key)!;
+        if (round < list.length) {
+          picked.push(list[round]);
+          addedThisRound = true;
+        }
+      }
+      if (!addedThisRound) break;
+      round++;
+    }
+
+    return picked;
+  }, [allBooks]);
+
 
 
   const bookToShow = slugCategory 
@@ -36,7 +62,7 @@ export const Home = () => {
 
     return (
         <main className="min-h-screen bg-[#141210] text-veloura-surface-2">
-          <Carousel items={caruselBooks} />
+          <Carousel items={carouselBooks} />
 
           <section className="mx-auto flex max-w-7xl flex-col items-center border-t border-white/10 px-4 py-16 text-center sm:px-6 lg:px-8">
             <h1 className="text-3xl font-semibold tracking-tight text-veloura-accent sm:text-4xl">Explore by categories</h1>

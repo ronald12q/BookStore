@@ -1,11 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import type { Book } from "../utilities/bookInterface";
 import { CreateCartItem } from "../hooks/createCartItemHook";
 
-
-
+const AUTOSCROLL_MS = 6000;
 
 type CarouselProps = {
     items: Book[];
@@ -13,7 +12,71 @@ type CarouselProps = {
 
 export const Carousel = ({ items }: CarouselProps) => {
     const [current, setCurrent] = useState(0);
+    const [paused, setPaused] = useState(false);
+    const [progress, setProgress] = useState(0);
     const {requestCreateCartItem } = CreateCartItem();
+
+    // Refs to keep interval/animation state stable across renders
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // ── auto-scroll logic ────────────────────────────────────────────────
+
+    const clearTimers = useCallback(() => {
+        if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+        if (progressRef.current) { clearInterval(progressRef.current); progressRef.current = null; }
+    }, []);
+
+    const startTimers = useCallback(() => {
+        clearTimers();
+        setProgress(0);
+
+        // Progress bar ticks every 50ms for a smooth fill
+        const tick = 50;
+        progressRef.current = setInterval(() => {
+            setProgress((prev) => Math.min(prev + (tick / AUTOSCROLL_MS) * 100, 100));
+        }, tick);
+
+        // Advance slide after AUTOSCROLL_MS
+        intervalRef.current = setInterval(() => {
+            setCurrent((prev) => (prev === items.length - 1 ? 0 : prev + 1));
+            setProgress(0);
+        }, AUTOSCROLL_MS);
+    }, [items.length, clearTimers]);
+
+    useEffect(() => {
+        if (!paused && items.length > 1) {
+            startTimers();
+        } else {
+            clearTimers();
+            setProgress(0);
+        }
+        return clearTimers;
+    }, [paused, items.length, startTimers, clearTimers]);
+
+    // Reset progress whenever the current slide changes (manual or auto)
+    useEffect(() => {
+        setProgress(0);
+    }, [current]);
+
+    // ── navigation handlers ──────────────────────────────────────────────
+
+    const next = () => {
+        setCurrent((prev) => (prev === items.length - 1 ? 0 : prev + 1));
+        if (!paused) startTimers(); // restart timer on manual nav
+    };
+
+    const prev = () => {
+        setCurrent((prev) => (prev === 0 ? items.length - 1 : prev - 1));
+        if (!paused) startTimers();
+    };
+
+    const goTo = (index: number) => {
+        setCurrent(index);
+        if (!paused) startTimers();
+    };
+
+    // ── render ───────────────────────────────────────────────────────────
 
     if (items.length === 0) {
         return (
@@ -25,22 +88,14 @@ export const Carousel = ({ items }: CarouselProps) => {
         );
     }
 
-    const next = () => {
-        setCurrent((prev) => (prev === items.length - 1 ? 0 : prev + 1));
-    };
-
-    const prev = () => {
-        setCurrent((prev) => (prev === 0 ? items.length - 1 : prev - 1));
-    };
-
-    const goTo = (index: number) => {
-        setCurrent(index);
-    };
-
     const activeItem = items[current];
 
     return (
-        <section className="relative min-h-screen overflow-hidden text-veloura-surface-2">
+        <section
+            className="relative min-h-screen overflow-hidden text-veloura-surface-2"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+        >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,60,20,0.35),transparent_48%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.4),rgba(0,0,0,0.08))]" />
 
@@ -99,6 +154,7 @@ export const Carousel = ({ items }: CarouselProps) => {
                 </div>
             </div>
 
+            {/* Dot indicators with progress bar */}
             <div className="absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-full border border-veloura-border/35 bg-black/30 px-4 py-2">
                 {items.map((item, index) => (
                     <button
@@ -106,10 +162,17 @@ export const Carousel = ({ items }: CarouselProps) => {
                         type="button"
                         onClick={() => goTo(index)}
                         aria-label={`Go to book ${index + 1}`}
-                        className={`h-3 w-3 rounded-full transition ${
-                            current === index ? "scale-125 bg-veloura-accent" : "bg-veloura-surface-offset/70 hover:bg-veloura-surface-2"
+                        className={`relative h-3 overflow-hidden rounded-full transition-all duration-300 ${
+                            current === index ? "w-8 bg-veloura-accent/30" : "w-3 bg-veloura-surface-offset/70 hover:bg-veloura-surface-2"
                         }`}
-                    />
+                    >
+                        {current === index && (
+                            <span
+                                className="absolute inset-y-0 left-0 rounded-full bg-veloura-accent transition-[width] duration-75"
+                                style={{ width: `${progress}%` }}
+                            />
+                        )}
+                    </button>
                 ))}
             </div>
         </section>

@@ -121,18 +121,31 @@ export const createBook = async (req: Request, res: Response) => {
 export const deleteBook = async(req: Request, res: Response) => {
     try {
 
-        const {bookId} = req.body;
+        const {id} = req.params;
 
-        const bookDeleted = await prisma.book.delete({where: {id: bookId}});
+        const book = await prisma.book.findUnique({where: {id}});
 
-        if(!bookDeleted){
-            return res.status(400).json({message: 'book not found'});
+        if(!book){
+            return res.status(404).json({message: 'book not found'});
         }
+
+        // Check if the book has order items — prevent deletion to preserve order history
+        const orderItemCount = await prisma.orderItem.count({where: {bookId: id}});
+        if(orderItemCount > 0){
+            return res.status(400).json({message: 'Cannot delete this book because it has associated orders. Consider updating it instead.'});
+        }
+
+        // Clean up related cart items before deleting
+        await prisma.cartItem.deleteMany({where: {bookId: id}});
+
+        // Reviews cascade on delete (schema onDelete: Cascade), so no manual cleanup needed
+        const bookDeleted = await prisma.book.delete({where: {id}});
 
         return res.status(200).json({message: 'book was succesfull remove', book: bookDeleted});
         
     } catch (error) {
-        
+        console.error(error);
+        return res.status(500).json({message: 'something went wrong deleting the book', error: (error as Error).message});
     }
     
     
