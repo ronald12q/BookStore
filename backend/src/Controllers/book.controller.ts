@@ -123,6 +123,10 @@ export const deleteBook = async(req: Request, res: Response) => {
 
         const {id} = req.params;
 
+        if (typeof id !== 'string' || id.length === 0) {
+            return res.status(400).json({message: 'A valid book id is required'});
+        }
+
         const book = await prisma.book.findUnique({where: {id}});
 
         if(!book){
@@ -153,10 +157,10 @@ export const deleteBook = async(req: Request, res: Response) => {
 
 export const updateBook = async (req: Request, res: Response) => {
  try {
-  // The route is '/:id'; rawId never existed in req.params.
-  const {id: rawId} = req.params;
-  // Express can type params as string[]; Prisma needs a clean string id.
-  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+  const {id} = req.params;
+  if (typeof id !== 'string' || id.length === 0) {
+    return res.status(400).json({message: 'A valid book id is required'});
+  }
   const update = {
     ...req.body,
     ...(req.body.price !== undefined ? { price: Number(req.body.price) } : {}),

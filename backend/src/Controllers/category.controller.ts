@@ -57,6 +57,10 @@ export const createNewCategory = async(req: Request, res: Response) => {
 export const deleteCategory = async(req: Request, res: Response) => {
     try {
         const {id} = req.params;
+
+        if (typeof id !== 'string' || id.length === 0) {
+            return res.status(400).json({message: 'A valid category id is required'});
+        }
         
         const booksInCategory = await prisma.book.findFirst({where:{categoryId: id}});
 
